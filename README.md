@@ -123,6 +123,7 @@ output is in [results/output/](results/output/).
 │   ├── main.py                 FastAPI REST API serving the results
 │   ├── requirements.txt
 │   └── tests/test_api.py       API tests
+├── hadoop/conf/                single-node Hadoop config (core, hdfs, mapred, yarn)
 ├── mapreduce/
 │   ├── sales_by_product/       mapper.py, reducer.py
 │   ├── sales_by_country/       mapper.py, reducer.py
@@ -130,6 +131,8 @@ output is in [results/output/](results/output/).
 │   └── monthly_sales/          mapper.py, reducer.py
 ├── scripts/
 │   ├── download_data.sh        downloads the dataset into data/raw/
+│   ├── hadoop_start.sh         starts HDFS + YARN (hadoop_stop.sh stops them)
+│   ├── hadoop_env.sh           Hadoop environment variables for your shell
 │   ├── clean_data.py           cleaning step → data/cleaned/online_retail_clean.tsv
 │   ├── verify_results.py       checks MapReduce output against pandas
 │   └── visualize.py            graphs + ranked CSV tables
@@ -138,7 +141,9 @@ output is in [results/output/](results/output/).
 ├── results/
 │   ├── output/<job>/part-00000 MapReduce output
 │   ├── summary/*.csv           ranked tables
-│   └── graphs/*.png            charts
+│   ├── graphs/*.png            charts
+│   ├── hadoop_screenshots/     HDFS / YARN web UI screenshots from the Hadoop run
+│   └── hadoop_run_log.txt      full Hadoop job log with counters
 ├── run_hadoop.sh               runs all jobs on Hadoop via Hadoop Streaming
 ├── run_local.sh                runs the same jobs locally (map | sort | reduce)
 └── run_pipeline.sh             end-to-end: download → clean → MapReduce → verify → graphs
@@ -152,19 +157,51 @@ output is in [results/output/](results/output/).
   ```bash
   pip install -r requirements.txt
   ```
-- For the Hadoop run: Java 8/11 and Hadoop 3.x (single-node / pseudo-distributed is enough).
+- For the Hadoop run: Hadoop 3.x and Java 17 (a single-node cluster is enough).
 
 ### Option A — on Hadoop
 
+**1. Install Hadoop (one time).** On macOS, Homebrew also installs the Java it needs:
+
 ```bash
-./scripts/download_data.sh          # 1. get the dataset
-python3 scripts/clean_data.py       # 2. clean it
-./run_hadoop.sh                     # 3. upload to HDFS and run the 4 jobs
-python3 scripts/verify_results.py   # 4. check the results
-python3 scripts/visualize.py        # 5. build graphs + tables
+brew install hadoop
+```
+
+On Linux, download Hadoop from https://hadoop.apache.org/releases.html and set
+`HADOOP_HOME` and `JAVA_HOME` before running the scripts below.
+
+**2. Start the single-node cluster.** The project's config is in
+[hadoop/conf/](hadoop/conf/). The script starts every daemon directly, so it needs
+no SSH or sudo setup. It formats HDFS the first time it runs.
+
+```bash
+./scripts/hadoop_start.sh
+```
+
+`jps` should now list NameNode, DataNode, ResourceManager, NodeManager and JobHistoryServer.
+
+| Web UI | URL |
+|--------|-----|
+| HDFS NameNode (files, storage) | http://localhost:9870 |
+| YARN (running and finished jobs) | http://localhost:8088 |
+| MapReduce job history (counters) | http://localhost:19888 |
+
+**3. Run the pipeline on Hadoop.**
+
+```bash
+./scripts/download_data.sh          # get the dataset
+python3 scripts/clean_data.py       # clean it
+./run_hadoop.sh                     # upload to HDFS and run the 4 jobs on YARN
+python3 scripts/verify_results.py   # check the results
+python3 scripts/visualize.py        # build graphs + tables
 ```
 
 or all at once: `./run_pipeline.sh hadoop`
+
+**4. Stop the cluster when you're done:** `./scripts/hadoop_stop.sh`
+
+To use Hadoop commands yourself (for example `hdfs dfs -ls /user/$USER/retail/output`),
+first run `source scripts/hadoop_env.sh` in your terminal.
 
 `run_hadoop.sh` uploads the cleaned file to `/user/$USER/retail/input`, then runs
 each job like this:
@@ -179,38 +216,8 @@ hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
   -output /user/$USER/retail/output/sales_by_country
 ```
 
-Then it copies each job's output back with `hdfs dfs -getmerge`. You can set
-`HDFS_BASE`, `STREAMING_JAR` and `NUM_REDUCERS` as environment variables.
-
-<details>
-<summary>Quick single-node Hadoop setup</summary>
-
-```bash
-# macOS
-brew install hadoop            # installs under $(brew --prefix hadoop)/libexec
-export HADOOP_HOME="$(brew --prefix hadoop)/libexec"
-
-# Linux
-wget https://downloads.apache.org/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz
-tar -xzf hadoop-3.4.1.tar.gz && export HADOOP_HOME=$PWD/hadoop-3.4.1
-
-export PATH="$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH"
-```
-
-In `$HADOOP_HOME/etc/hadoop/`, set `fs.defaultFS` to `hdfs://localhost:9000` in
-`core-site.xml` and `dfs.replication` to `1` in `hdfs-site.xml`. Set
-`mapreduce.framework.name` to `yarn` in `mapred-site.xml`, and also set
-`mapreduce.application.classpath` there. Then enable passwordless
-`ssh localhost` and run:
-
-```bash
-hdfs namenode -format
-start-dfs.sh && start-yarn.sh
-jps        # should list NameNode, DataNode, ResourceManager, NodeManager
-```
-
-Web UIs: HDFS at http://localhost:9870 and YARN at http://localhost:8088.
-</details>
+Then it copies each job's output from HDFS back to `results/output/`. You can
+set `HDFS_BASE`, `STREAMING_JAR` and `NUM_REDUCERS` as environment variables.
 
 ### Option B — without Hadoop (local simulation)
 
@@ -239,6 +246,31 @@ to restore the full results.)
 python3 -m unittest discover tests                  # MapReduce jobs
 python3 -m unittest discover -s backend/tests -t .  # backend API
 ```
+
+## Hadoop run
+
+The four jobs were run on a single-node Hadoop 3.5.0 cluster (HDFS + YARN) with
+Java 17. All four finished with state `SUCCEEDED`, using 2 map tasks and 1 reduce
+task each. The output fetched from HDFS matches the local run byte for byte.
+The full job log with all counters is in
+[results/hadoop_run_log.txt](results/hadoop_run_log.txt).
+
+Hadoop counters show how much the combiner saves. Each job reads 519,516 input
+records (44.6 MB). The combiner adds up values on the map side, so far fewer
+records go through the shuffle to the reducer:
+
+| Job | Map output records | After combiner (shuffled) | Reduce output (keys) |
+|-----|-------------------:|--------------------------:|---------------------:|
+| sales_by_product | 519,516 | 6,950 | 3,998 |
+| sales_by_country | 519,516 | 70 | 38 |
+| top_selling_products | 519,516 | 6,950 | 3,998 |
+| monthly_sales | 519,516 | 14 | 13 |
+
+| HDFS NameNode | HDFS output directories |
+|---|---|
+| ![HDFS overview](results/hadoop_screenshots/1_hdfs_namenode_overview.png) | ![HDFS file browser](results/hadoop_screenshots/2_hdfs_file_browser.png) |
+| **YARN applications** | **MapReduce job history** |
+| ![YARN applications](results/hadoop_screenshots/3_yarn_applications.png) | ![Job history](results/hadoop_screenshots/4_job_history.png) |
 
 ## Backend API
 
