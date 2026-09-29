@@ -19,6 +19,11 @@ NUM_REDUCERS="${NUM_REDUCERS:-1}"
 OUT="$ROOT/results/output"
 JOBS=(sales_by_product sales_by_country top_selling_products monthly_sales)
 
+# Use the project's single-node setup (scripts/hadoop_env.sh) unless Hadoop
+# is already configured in this shell
+if [[ -z "${HADOOP_CONF_DIR:-}" && -f "$ROOT/scripts/hadoop_env.sh" ]]; then
+  source "$ROOT/scripts/hadoop_env.sh"
+fi
 command -v hadoop >/dev/null || { echo "hadoop not found on PATH"; exit 1; }
 [[ -f "$INPUT" ]] || { echo "Input not found: $INPUT (run scripts/clean_data.py first)"; exit 1; }
 
@@ -52,7 +57,7 @@ for job in "${JOBS[@]}"; do
 
   # 3. Fetch results back to the local filesystem
   mkdir -p "$OUT/$job"
-  hdfs dfs -getmerge "$hdfs_out" "$OUT/$job/part-00000"
+  hdfs dfs -cat "$hdfs_out/part-*" > "$OUT/$job/part-00000"
   echo "   -> $OUT/$job/part-00000"
 done
 

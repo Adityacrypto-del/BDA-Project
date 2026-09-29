@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- Single-node (pseudo-distributed) HDFS -->
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+  </property>
+  <property>
+    <!-- NameNode/DataNode storage lives outside the repo -->
+    <name>hadoop.tmp.dir</name>
+    <value>${user.home}/hadoop-data</value>
+  </property>
+</configuration>

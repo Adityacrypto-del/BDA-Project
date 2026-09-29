@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <!-- Only one DataNode, so keep a single copy of each block -->
+    <name>dfs.replication</name>
+    <value>1</value>
+  </property>
+</configuration>
