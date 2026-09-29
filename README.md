@@ -119,6 +119,10 @@ output is in [results/output/](results/output/).
 ## Project structure
 
 ```
+├── backend/
+│   ├── main.py                 FastAPI REST API serving the results
+│   ├── requirements.txt
+│   └── tests/test_api.py       API tests
 ├── mapreduce/
 │   ├── sales_by_product/       mapper.py, reducer.py
 │   ├── sales_by_country/       mapper.py, reducer.py
@@ -232,8 +236,49 @@ to restore the full results.)
 ### Tests
 
 ```bash
-python3 -m unittest discover tests
+python3 -m unittest discover tests                  # MapReduce jobs
+python3 -m unittest discover -s backend/tests -t .  # backend API
 ```
+
+## Backend API
+
+[backend/main.py](backend/main.py) is a FastAPI server. It reads the MapReduce
+output files and serves them as JSON so a frontend can display them. It re-reads
+a file only when that file has changed, so running the pipeline again updates
+the API without a restart.
+
+```bash
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --reload --port 8000     # run from the project root
+```
+
+Interactive docs: http://localhost:8000/docs
+
+| Method | Endpoint | Returns |
+|--------|----------|---------|
+| GET | `/api/health` | status and which job results are available |
+| GET | `/api/summary` | total revenue and units, product/country counts, top product, top country, best month |
+| GET | `/api/products/revenue?top=10&search=` | Job 1: products ranked by revenue |
+| GET | `/api/products/quantity?top=10&search=` | Job 3: products ranked by units sold |
+| GET | `/api/countries?top=50` | Job 2: countries ranked by revenue, with % share |
+| GET | `/api/monthly` | Job 4: revenue per month with month-over-month % change |
+| GET | `/api/graphs` | list of chart URLs (images served under `/graphs/...`) |
+| POST | `/api/pipeline/run?mode=local\|hadoop` | starts clean → MapReduce → verify → graphs in the background (returns 409 if already running) |
+| GET | `/api/pipeline/status` | `idle` / `running` / `succeeded` / `failed`, plus the last 50 log lines |
+
+Example:
+
+```bash
+curl "http://localhost:8000/api/products/revenue?top=2"
+```
+```json
+[{"rank":1,"product":"Regency Cakestand 3 Tier","product_raw":"REGENCY CAKESTAND 3 TIER","revenue":169505.64,"share_pct":1.73},
+ {"rank":2,"product":"White Hanging Heart T-light Holder","product_raw":"WHITE HANGING HEART T-LIGHT HOLDER","revenue":100052.42,"share_pct":1.02}]
+```
+
+The API returns `503` for results endpoints until the pipeline has produced
+output. CORS allows any origin by default; set `RETAIL_CORS_ORIGINS` (comma-separated)
+to restrict it. `RETAIL_RESULTS_DIR` points it at a different results folder.
 
 ## Verification
 
@@ -249,7 +294,7 @@ python3 -m unittest discover tests
 
 ## Tech stack
 
-Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib
+Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib · FastAPI (backend API)
 
 ## Dataset citation
 
