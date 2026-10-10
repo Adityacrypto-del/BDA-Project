@@ -123,6 +123,7 @@ output is in [results/output/](results/output/).
 │   ├── main.py                 FastAPI REST API serving the results
 │   ├── requirements.txt
 │   └── tests/test_api.py       API tests
+├── frontend/                   Next.js site that displays the results (see frontend/README.md)
 ├── hadoop/conf/                single-node Hadoop config (core, hdfs, mapred, yarn)
 ├── mapreduce/
 │   ├── sales_by_product/       mapper.py, reducer.py
@@ -143,6 +144,7 @@ output is in [results/output/](results/output/).
 │   ├── summary/*.csv           ranked tables
 │   ├── graphs/*.png            charts
 │   ├── hadoop_screenshots/     HDFS / YARN web UI screenshots from the Hadoop run
+│   ├── frontend_screenshots/   screenshots of the frontend
 │   └── hadoop_run_log.txt      full Hadoop job log with counters
 ├── run_hadoop.sh               runs all jobs on Hadoop via Hadoop Streaming
 ├── run_local.sh                runs the same jobs locally (map | sort | reduce)
@@ -312,6 +314,33 @@ The API returns `503` for results endpoints until the pipeline has produced
 output. CORS allows any origin by default; set `RETAIL_CORS_ORIGINS` (comma-separated)
 to restrict it. `RETAIL_RESULTS_DIR` points it at a different results folder.
 
+## Frontend
+
+[frontend/](frontend/) is a Next.js site built on the API. It covers the pipeline
+with the real Hadoop counters, monthly revenue, product rankings with search, a
+country breakdown, and a panel that starts the pipeline and shows its log. It
+uses animated charts and a 3D hero driven by scrolling.
+
+```bash
+# terminal 1, from the project root
+uvicorn backend.main:app --port 8000
+
+# terminal 2
+cd frontend
+npm install
+npm run dev          # open http://localhost:3000
+```
+
+If port 8000 is already in use, start the backend on another port and point the
+frontend at it: `NEXT_PUBLIC_API_URL=http://localhost:8001 npm run dev`. If the
+API can't be reached, the site shows a saved snapshot of the results.
+
+| Hero | Pipeline |
+|------|----------|
+| ![Hero](results/frontend_screenshots/01_hero.png) | ![Pipeline](results/frontend_screenshots/03_pipeline.png) |
+| **Monthly sales** | **Products** |
+| ![Monthly](results/frontend_screenshots/04_monthly.png) | ![Products](results/frontend_screenshots/05_products.png) |
+
 ## Verification
 
 `scripts/verify_results.py` runs all four aggregations again with pandas
@@ -326,7 +355,7 @@ to restrict it. `RETAIL_RESULTS_DIR` points it at a different results folder.
 
 ## Tech stack
 
-Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib · FastAPI (backend API)
+Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib · FastAPI (backend API) · Next.js, Recharts, Motion, three.js (frontend)
 
 ## Dataset citation
 

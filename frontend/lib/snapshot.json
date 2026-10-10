@@ -1,0 +1,468 @@
+{
+ "summary": {
+  "total_revenue": 9815291.49,
+  "total_units_sold": 5333762,
+  "product_count": 3998,
+  "country_count": 38,
+  "month_count": 13,
+  "top_product_by_revenue": {
+   "product": "Regency Cakestand 3 Tier",
+   "revenue": 169505.64
+  },
+  "top_product_by_quantity": {
+   "product": "World War 2 Gliders Asstd Designs",
+   "units_sold": 54711
+  },
+  "top_country": {
+   "country": "United Kingdom",
+   "revenue": 8314970.56,
+   "share_pct": 84.71
+  },
+  "best_month": {
+   "month": "2011-11",
+   "revenue": 1436127.66
+  },
+  "results_updated_at": "2026-09-29T10:07:32.186729+00:00"
+ },
+ "productsRevenue": [
+  {
+   "rank": 1,
+   "product": "Regency Cakestand 3 Tier",
+   "product_raw": "REGENCY CAKESTAND 3 TIER",
+   "revenue": 169505.64,
+   "share_pct": 1.73
+  },
+  {
+   "rank": 2,
+   "product": "White Hanging Heart T-light Holder",
+   "product_raw": "WHITE HANGING HEART T-LIGHT HOLDER",
+   "revenue": 100052.42,
+   "share_pct": 1.02
+  },
+  {
+   "rank": 3,
+   "product": "Party Bunting",
+   "product_raw": "PARTY BUNTING",
+   "revenue": 98610.18,
+   "share_pct": 1.0
+  },
+  {
+   "rank": 4,
+   "product": "Jumbo Bag Red Retrospot",
+   "product_raw": "JUMBO BAG RED RETROSPOT",
+   "revenue": 92595.77,
+   "share_pct": 0.94
+  },
+  {
+   "rank": 5,
+   "product": "Rabbit Night Light",
+   "product_raw": "RABBIT NIGHT LIGHT",
+   "revenue": 66807.63,
+   "share_pct": 0.68
+  },
+  {
+   "rank": 6,
+   "product": "Paper Chain Kit 50's Christmas",
+   "product_raw": "PAPER CHAIN KIT 50'S CHRISTMAS",
+   "revenue": 63834.94,
+   "share_pct": 0.65
+  },
+  {
+   "rank": 7,
+   "product": "Assorted Colour Bird Ornament",
+   "product_raw": "ASSORTED COLOUR BIRD ORNAMENT",
+   "revenue": 58878.61,
+   "share_pct": 0.6
+  },
+  {
+   "rank": 8,
+   "product": "Chilli Lights",
+   "product_raw": "CHILLI LIGHTS",
+   "revenue": 53761.61,
+   "share_pct": 0.55
+  },
+  {
+   "rank": 9,
+   "product": "Spotty Bunting",
+   "product_raw": "SPOTTY BUNTING",
+   "revenue": 42493.68,
+   "share_pct": 0.43
+  },
+  {
+   "rank": 10,
+   "product": "Jumbo Bag Pink Polkadot",
+   "product_raw": "JUMBO BAG PINK POLKADOT",
+   "revenue": 41609.47,
+   "share_pct": 0.42
+  }
+ ],
+ "productsQuantity": [
+  {
+   "rank": 1,
+   "product": "World War 2 Gliders Asstd Designs",
+   "product_raw": "WORLD WAR 2 GLIDERS ASSTD DESIGNS",
+   "units_sold": 54711,
+   "share_pct": 1.03
+  },
+  {
+   "rank": 2,
+   "product": "Jumbo Bag Red Retrospot",
+   "product_raw": "JUMBO BAG RED RETROSPOT",
+   "units_sold": 47488,
+   "share_pct": 0.89
+  },
+  {
+   "rank": 3,
+   "product": "Popcorn Holder",
+   "product_raw": "POPCORN HOLDER",
+   "units_sold": 36546,
+   "share_pct": 0.69
+  },
+  {
+   "rank": 4,
+   "product": "Assorted Colour Bird Ornament",
+   "product_raw": "ASSORTED COLOUR BIRD ORNAMENT",
+   "units_sold": 36333,
+   "share_pct": 0.68
+  },
+  {
+   "rank": 5,
+   "product": "Pack Of 72 Retrospot Cake Cases",
+   "product_raw": "PACK OF 72 RETROSPOT CAKE CASES",
+   "units_sold": 36228,
+   "share_pct": 0.68
+  },
+  {
+   "rank": 6,
+   "product": "White Hanging Heart T-light Holder",
+   "product_raw": "WHITE HANGING HEART T-LIGHT HOLDER",
+   "units_sold": 35348,
+   "share_pct": 0.66
+  },
+  {
+   "rank": 7,
+   "product": "Rabbit Night Light",
+   "product_raw": "RABBIT NIGHT LIGHT",
+   "units_sold": 30709,
+   "share_pct": 0.58
+  },
+  {
+   "rank": 8,
+   "product": "Mini Paint Set Vintage",
+   "product_raw": "MINI PAINT SET VINTAGE",
+   "units_sold": 26489,
+   "share_pct": 0.5
+  },
+  {
+   "rank": 9,
+   "product": "Pack Of 12 London Tissues",
+   "product_raw": "PACK OF 12 LONDON TISSUES",
+   "units_sold": 26107,
+   "share_pct": 0.49
+  },
+  {
+   "rank": 10,
+   "product": "Pack Of 60 Pink Paisley Cake Cases",
+   "product_raw": "PACK OF 60 PINK PAISLEY CAKE CASES",
+   "units_sold": 24748,
+   "share_pct": 0.46
+  }
+ ],
+ "countries": [
+  {
+   "rank": 1,
+   "country": "United Kingdom",
+   "revenue": 8314970.56,
+   "share_pct": 84.71
+  },
+  {
+   "rank": 2,
+   "country": "Netherlands",
+   "revenue": 283443.54,
+   "share_pct": 2.89
+  },
+  {
+   "rank": 3,
+   "country": "EIRE",
+   "revenue": 262162.03,
+   "share_pct": 2.67
+  },
+  {
+   "rank": 4,
+   "country": "Germany",
+   "revenue": 203605.08,
+   "share_pct": 2.07
+  },
+  {
+   "rank": 5,
+   "country": "France",
+   "revenue": 182697.39,
+   "share_pct": 1.86
+  },
+  {
+   "rank": 6,
+   "country": "Australia",
+   "revenue": 137062.85,
+   "share_pct": 1.4
+  },
+  {
+   "rank": 7,
+   "country": "Switzerland",
+   "revenue": 52712.5,
+   "share_pct": 0.54
+  },
+  {
+   "rank": 8,
+   "country": "Spain",
+   "revenue": 52029.97,
+   "share_pct": 0.53
+  },
+  {
+   "rank": 9,
+   "country": "Japan",
+   "revenue": 37314.37,
+   "share_pct": 0.38
+  },
+  {
+   "rank": 10,
+   "country": "Belgium",
+   "revenue": 36813.69,
+   "share_pct": 0.38
+  },
+  {
+   "rank": 11,
+   "country": "Sweden",
+   "revenue": 35214.33,
+   "share_pct": 0.36
+  },
+  {
+   "rank": 12,
+   "country": "Norway",
+   "revenue": 32319.31,
+   "share_pct": 0.33
+  },
+  {
+   "rank": 13,
+   "country": "Portugal",
+   "revenue": 26831.26,
+   "share_pct": 0.27
+  },
+  {
+   "rank": 14,
+   "country": "Channel Islands",
+   "revenue": 19997.54,
+   "share_pct": 0.2
+  },
+  {
+   "rank": 15,
+   "country": "Finland",
+   "revenue": 18344.88,
+   "share_pct": 0.19
+  },
+  {
+   "rank": 16,
+   "country": "Denmark",
+   "revenue": 18081.24,
+   "share_pct": 0.18
+  },
+  {
+   "rank": 17,
+   "country": "Italy",
+   "revenue": 15573.99,
+   "share_pct": 0.16
+  },
+  {
+   "rank": 18,
+   "country": "Cyprus",
+   "revenue": 12940.91,
+   "share_pct": 0.13
+  },
+  {
+   "rank": 19,
+   "country": "Hong Kong",
+   "revenue": 9744.19,
+   "share_pct": 0.1
+  },
+  {
+   "rank": 20,
+   "country": "Singapore",
+   "revenue": 9120.39,
+   "share_pct": 0.09
+  },
+  {
+   "rank": 21,
+   "country": "Austria",
+   "revenue": 8742.68,
+   "share_pct": 0.09
+  },
+  {
+   "rank": 22,
+   "country": "Israel",
+   "revenue": 8129.41,
+   "share_pct": 0.08
+  },
+  {
+   "rank": 23,
+   "country": "Poland",
+   "revenue": 6909.85,
+   "share_pct": 0.07
+  },
+  {
+   "rank": 24,
+   "country": "Unspecified",
+   "revenue": 4740.94,
+   "share_pct": 0.05
+  },
+  {
+   "rank": 25,
+   "country": "Greece",
+   "revenue": 4425.52,
+   "share_pct": 0.05
+  },
+  {
+   "rank": 26,
+   "country": "Iceland",
+   "revenue": 4310.0,
+   "share_pct": 0.04
+  },
+  {
+   "rank": 27,
+   "country": "Canada",
+   "revenue": 3115.44,
+   "share_pct": 0.03
+  },
+  {
+   "rank": 28,
+   "country": "Malta",
+   "revenue": 2030.79,
+   "share_pct": 0.02
+  },
+  {
+   "rank": 29,
+   "country": "United Arab Emirates",
+   "revenue": 1864.78,
+   "share_pct": 0.02
+  },
+  {
+   "rank": 30,
+   "country": "USA",
+   "revenue": 1730.92,
+   "share_pct": 0.02
+  },
+  {
+   "rank": 31,
+   "country": "Lebanon",
+   "revenue": 1693.88,
+   "share_pct": 0.02
+  },
+  {
+   "rank": 32,
+   "country": "Lithuania",
+   "revenue": 1661.06,
+   "share_pct": 0.02
+  },
+  {
+   "rank": 33,
+   "country": "European Community",
+   "revenue": 1159.25,
+   "share_pct": 0.01
+  },
+  {
+   "rank": 34,
+   "country": "Brazil",
+   "revenue": 1143.6,
+   "share_pct": 0.01
+  },
+  {
+   "rank": 35,
+   "country": "RSA",
+   "revenue": 1002.31,
+   "share_pct": 0.01
+  },
+  {
+   "rank": 36,
+   "country": "Bahrain",
+   "revenue": 754.14,
+   "share_pct": 0.01
+  },
+  {
+   "rank": 37,
+   "country": "Czech Republic",
+   "revenue": 750.98,
+   "share_pct": 0.01
+  },
+  {
+   "rank": 38,
+   "country": "Saudi Arabia",
+   "revenue": 145.92,
+   "share_pct": 0.0
+  }
+ ],
+ "monthly": [
+  {
+   "month": "2010-12",
+   "revenue": 766665.09,
+   "change_pct": null
+  },
+  {
+   "month": "2011-01",
+   "revenue": 587062.7,
+   "change_pct": -23.43
+  },
+  {
+   "month": "2011-02",
+   "revenue": 505292.29,
+   "change_pct": -13.93
+  },
+  {
+   "month": "2011-03",
+   "revenue": 680301.35,
+   "change_pct": 34.64
+  },
+  {
+   "month": "2011-04",
+   "revenue": 490266.22,
+   "change_pct": -27.93
+  },
+  {
+   "month": "2011-05",
+   "revenue": 733579.66,
+   "change_pct": 49.63
+  },
+  {
+   "month": "2011-06",
+   "revenue": 689417.76,
+   "change_pct": -6.02
+  },
+  {
+   "month": "2011-07",
+   "revenue": 681338.77,
+   "change_pct": -1.17
+  },
+  {
+   "month": "2011-08",
+   "revenue": 717100.45,
+   "change_pct": 5.25
+  },
+  {
+   "month": "2011-09",
+   "revenue": 1017160.07,
+   "change_pct": 41.84
+  },
+  {
+   "month": "2011-10",
+   "revenue": 1068097.92,
+   "change_pct": 5.01
+  },
+  {
+   "month": "2011-11",
+   "revenue": 1436127.66,
+   "change_pct": 34.46
+  },
+  {
+   "month": "2011-12",
+   "revenue": 442881.55,
+   "change_pct": -69.16
+  }
+ ]
+}
