@@ -5,7 +5,8 @@ import { Countries } from "@/components/sections/countries";
 import { Hero } from "@/components/sections/hero";
 import { Monthly } from "@/components/sections/monthly";
 import { Nav } from "@/components/sections/nav";
-import { Overview, Ticker } from "@/components/sections/overview";
+import { Overview } from "@/components/sections/overview";
+import { RecordStream } from "@/components/sections/record-stream";
 import { PipelineFlow } from "@/components/sections/pipeline-flow";
 import { Products } from "@/components/sections/products";
 import { Graphs, RunPipeline } from "@/components/sections/run-pipeline";
@@ -18,7 +19,7 @@ export default function Home() {
     <main className="relative">
       <Nav source={source} />
       <Hero data={data} />
-      <Ticker data={data} />
+      <RecordStream data={data} />
 
       <div className="relative">
         <AuroraBackground className="opacity-60" />

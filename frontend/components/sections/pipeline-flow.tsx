@@ -6,6 +6,7 @@ import { Fragment, useState, type ReactNode } from "react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { CountUp } from "@/components/ui/count-up";
 import { count, type Dataset } from "@/lib/api";
+import { Factory } from "./factory";
 import { Section } from "./section";
 
 type JobKey = "product" | "country" | "quantity" | "monthly";
@@ -14,15 +15,54 @@ type JobKey = "product" | "country" | "quantity" | "monthly";
 const RAW_ROWS = 541_909;
 const CLEAN_ROWS = 519_516;
 
-const JOBS: Record<JobKey, { label: string; dir: string; emits: string; combined: number; keys: number; slot: number }> = {
-  product: { label: "Sales by product", dir: "sales_by_product", emits: "Description → Quantity × UnitPrice", combined: 6_950, keys: 3_998, slot: 1 },
-  country: { label: "Sales by country", dir: "sales_by_country", emits: "Country → Quantity × UnitPrice", combined: 70, keys: 38, slot: 2 },
-  quantity: { label: "Top sellers", dir: "top_selling_products", emits: "Description → Quantity", combined: 6_950, keys: 3_998, slot: 3 },
-  monthly: { label: "Monthly sales", dir: "monthly_sales", emits: "YYYY-MM → Quantity × UnitPrice", combined: 14, keys: 13, slot: 4 },
+const JOBS: Record<
+  JobKey,
+  {
+    label: string;
+    dir: string;
+    emits: string;
+    combined: number;
+    keys: number;
+    slot: number;
+  }
+> = {
+  product: {
+    label: "Sales by product",
+    dir: "sales_by_product",
+    emits: "Description → Quantity × UnitPrice",
+    combined: 6_950,
+    keys: 3_998,
+    slot: 1,
+  },
+  country: {
+    label: "Sales by country",
+    dir: "sales_by_country",
+    emits: "Country → Quantity × UnitPrice",
+    combined: 70,
+    keys: 38,
+    slot: 2,
+  },
+  quantity: {
+    label: "Top sellers",
+    dir: "top_selling_products",
+    emits: "Description → Quantity",
+    combined: 6_950,
+    keys: 3_998,
+    slot: 3,
+  },
+  monthly: {
+    label: "Monthly sales",
+    dir: "monthly_sales",
+    emits: "YYYY-MM → Quantity × UnitPrice",
+    combined: 14,
+    keys: 13,
+    slot: 4,
+  },
 };
 
 export function PipelineFlow({ data }: { data: Dataset }) {
   const [job, setJob] = useState<JobKey>("product");
+  const [lit, setLit] = useState<string | null>(null);
   const j = JOBS[job];
   const color = `var(--chart-${j.slot})`;
 
@@ -33,13 +73,55 @@ export function PipelineFlow({ data }: { data: Dataset }) {
     monthly: [data.summary.best_month.month, data.summary.best_month.revenue.toFixed(2)],
   };
 
-  const stages: { icon: ReactNode; name: string; detail: string; records: number; unit: string }[] = [
-    { icon: <FileSpreadsheet className="size-4" />, name: "Raw Excel", detail: "Online Retail.xlsx", records: RAW_ROWS, unit: "rows" },
-    { icon: <Filter className="size-4" />, name: "Clean", detail: "pandas · cancellations removed", records: CLEAN_ROWS, unit: "rows" },
-    { icon: <Database className="size-4" />, name: "HDFS", detail: "/user/…/retail/input · 44.6 MB", records: CLEAN_ROWS, unit: "lines" },
-    { icon: <Layers className="size-4" />, name: "Map", detail: j.emits, records: CLEAN_ROWS, unit: "pairs" },
-    { icon: <GitMerge className="size-4" />, name: "Combine + shuffle", detail: "map-side sums, sorted by key", records: j.combined, unit: "pairs" },
-    { icon: <Sigma className="size-4" />, name: "Reduce", detail: `${j.dir}/part-00000`, records: j.keys, unit: "keys" },
+  const stages: {
+    icon: ReactNode;
+    name: string;
+    detail: string;
+    records: number;
+    unit: string;
+  }[] = [
+    {
+      icon: <FileSpreadsheet className="size-4" />,
+      name: "Raw Excel",
+      detail: "Online Retail.xlsx",
+      records: RAW_ROWS,
+      unit: "rows",
+    },
+    {
+      icon: <Filter className="size-4" />,
+      name: "Clean",
+      detail: "pandas · cancellations removed",
+      records: CLEAN_ROWS,
+      unit: "rows",
+    },
+    {
+      icon: <Database className="size-4" />,
+      name: "HDFS",
+      detail: "/user/…/retail/input · 44.6 MB",
+      records: CLEAN_ROWS,
+      unit: "lines",
+    },
+    {
+      icon: <Layers className="size-4" />,
+      name: "Map",
+      detail: j.emits,
+      records: CLEAN_ROWS,
+      unit: "pairs",
+    },
+    {
+      icon: <GitMerge className="size-4" />,
+      name: "Combine + shuffle",
+      detail: "map-side sums, sorted by key",
+      records: j.combined,
+      unit: "pairs",
+    },
+    {
+      icon: <Sigma className="size-4" />,
+      name: "Reduce",
+      detail: `${j.dir}/part-00000`,
+      records: j.keys,
+      unit: "keys",
+    },
   ];
 
   return (
@@ -47,13 +129,18 @@ export function PipelineFlow({ data }: { data: Dataset }) {
       id="pipeline"
       eyebrow="02 · Pipeline"
       title={<>From half a million rows to a few thousand keys.</>}
-      lede="Each job streams the same cleaned file through a Python mapper and reducer on Hadoop Streaming. The reducer doubles as a combiner, so most of the summing happens before the shuffle. Pick a job to watch the record counts change."
+      lede="Each job streams the same cleaned file through a Python mapper and reducer on Hadoop Streaming. The reducer doubles as a combiner, so most of the summing happens before the shuffle. Click a station in the machine to light up its stage below, then pick a job to watch the record counts change."
     >
+      <Factory onStage={setLit} />
+
       <AnimatedTabs
-        className="mb-8 flex-wrap"
+        className="mt-12 mb-8 flex-wrap"
         value={job}
         onChange={setJob}
-        tabs={(Object.keys(JOBS) as JobKey[]).map((k) => ({ value: k, label: JOBS[k].label }))}
+        tabs={(Object.keys(JOBS) as JobKey[]).map((k) => ({
+          value: k,
+          label: JOBS[k].label,
+        }))}
       />
 
       <div className="flex flex-col items-stretch lg:flex-row lg:items-center">
@@ -68,8 +155,23 @@ export function PipelineFlow({ data }: { data: Dataset }) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.6 }}
             >
+              {lit === s.name && (
+                <motion.span
+                  layoutId="stage-glow"
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-[16px]"
+                  style={{ boxShadow: `0 0 0 2px ${color}, 0 0 32px -6px ${color}` }}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                />
+              )}
               <p className="mb-3 flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
-                <span className="grid size-7 place-content-center rounded-lg" style={{ background: `color-mix(in oklab, ${color} 16%, transparent)`, color }}>
+                <span
+                  className="grid size-7 place-content-center rounded-lg"
+                  style={{
+                    background: `color-mix(in oklab, ${color} 16%, transparent)`,
+                    color,
+                  }}
+                >
                   {s.icon}
                 </span>
                 {s.name}
@@ -142,15 +244,29 @@ function Connector({ records, color }: { records: number; color: string }) {
         <span key={i}>
           <motion.span
             className="absolute left-1/2 hidden size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full lg:block"
-            style={{ background: color, top: "50%", boxShadow: `0 0 8px ${color}` }}
+            style={{
+              background: color,
+              top: "50%",
+              boxShadow: `0 0 8px ${color}`,
+            }}
             animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, delay: (i / n) * 1.4, ease: "linear" }}
+            transition={{
+              duration: 1.4,
+              repeat: Infinity,
+              delay: (i / n) * 1.4,
+              ease: "linear",
+            }}
           />
           <motion.span
             className="absolute top-0 left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full lg:hidden"
             style={{ background: color, boxShadow: `0 0 8px ${color}` }}
             animate={{ top: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, delay: (i / n) * 1.4, ease: "linear" }}
+            transition={{
+              duration: 1.4,
+              repeat: Infinity,
+              delay: (i / n) * 1.4,
+              ease: "linear",
+            }}
           />
         </span>
       ))}

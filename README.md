@@ -335,11 +335,13 @@ If port 8000 is already in use, start the backend on another port and point the
 frontend at it: `NEXT_PUBLIC_API_URL=http://localhost:8001 npm run dev`. If the
 API can't be reached, the site shows a saved snapshot of the results.
 
-| Hero | Pipeline |
+| Hero | Pipeline (3D MapReduce machine) |
 |------|----------|
 | ![Hero](results/frontend_screenshots/01_hero.png) | ![Pipeline](results/frontend_screenshots/03_pipeline.png) |
 | **Monthly sales** | **Products** |
 | ![Monthly](results/frontend_screenshots/04_monthly.png) | ![Products](results/frontend_screenshots/05_products.png) |
+| **Record stream** | **Countries** |
+| ![Record stream](results/frontend_screenshots/08_record_stream.png) | ![Countries](results/frontend_screenshots/06_countries.png) |
 
 ## Verification
 

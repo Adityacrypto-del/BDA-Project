@@ -13,6 +13,15 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Components copied from frontend-bitch: relax rules without rewriting them.
+  {
+    files: ["components/ui/**/*.tsx"],
+    rules: {
+      "react-hooks/refs": "off",
+      "prefer-const": "off",
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

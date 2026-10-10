@@ -2,12 +2,18 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "motion/react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Reveal } from "@/components/ui/reveal";
 import { count, money, searchProducts, type Dataset, type ProductQuantity, type ProductRevenue } from "@/lib/api";
+import { useDataCards, type CardSpec } from "@/lib/data-cards";
 import type { Source } from "@/lib/use-dataset";
 import { Section } from "./section";
+
+// frontend-bitch/03-liquid-glass-carousel: three.js + gsap, so it loads on the client only
+const LiquidGlassCarousel = dynamic(() => import("@/components/ui/liquid-glass-carousel"), { ssr: false });
 
 type Metric = "revenue" | "quantity";
 type Row = { rank: number; product: string; value: number; share_pct: number };
@@ -48,6 +54,36 @@ export function Products({ data, source }: { data: Dataset; source: Source }) {
   const max = Math.max(...rows.map((r) => r.value), 1);
   const fmt = metric === "revenue" ? (v: number) => money(v, 1) : (v: number) => count(v);
 
+  // One rendered card per top-8 product, for the glass carousel
+  const top = useMemo(() => toRows(metric === "revenue" ? data.productsRevenue : data.productsQuantity).slice(0, 8), [data, metric]);
+  const specs = useMemo<CardSpec[]>(
+    () =>
+      top.map((r) => ({
+        kicker: `${metric === "revenue" ? "sales_by_product" : "top_selling_products"} · #${String(r.rank).padStart(2, "0")}`,
+        title: r.product,
+        value: metric === "revenue" ? money(r.value) : `${count(r.value)} units`,
+        share: r.value / top[0].value,
+        shareLabel: `${r.share_pct}% of ${metric === "revenue" ? "revenue" : "units"}`,
+        raw: `${r.product.toUpperCase()}\t${metric === "revenue" ? r.value.toFixed(2) : r.value}`,
+        slot: metric === "revenue" ? 1 : 3,
+      })),
+    [top, metric],
+  );
+  const urls = useDataCards(specs, 900, 1200);
+  const items = useMemo(
+    () =>
+      urls.map((src, i) => ({
+        src,
+        title: top[i]?.product ?? "",
+        aspect: 3 / 4,
+      })),
+    [urls, top],
+  );
+  const [active, setActive] = useState(0);
+  const stage = useRef<HTMLDivElement>(null);
+  const near = useInView(stage, { once: true, margin: "200px 0px" });
+  const cur = top[active] ?? top[0];
+
   return (
     <Section
       id="products"
@@ -56,6 +92,22 @@ export function Products({ data, source }: { data: Dataset; source: Source }) {
       lede="Jobs 1 and 3 group the same order lines by product: one adds up revenue, the other adds up units. Cheap items sold in bulk lead on units, while pricier decor leads on revenue."
     >
       <Reveal>
+        <div ref={stage} className="relative mb-4 h-[72vh] min-h-[480px] overflow-hidden rounded-[22px] bg-card ring-1 ring-border">
+          {near && items.length > 0 && (
+            <LiquidGlassCarousel key={metric} items={items} background="#0e1017" panelHeight={520} className="rounded-[22px]" onActiveChange={setActive} />
+          )}
+          {cur && (
+            <div className="pointer-events-none absolute right-6 bottom-5 left-6 hidden items-end justify-between gap-2 md:flex">
+              <p className="font-mono text-[11px] text-muted-foreground">Drag or scroll sideways · click a card to focus it</p>
+              <p className="rounded-full bg-background/70 px-3 py-1 font-mono text-[11px] ring-1 ring-border backdrop-blur">
+                #{cur.rank} · {fmt(cur.value)} · {cur.share_pct}%
+              </p>
+            </div>
+          )}
+        </div>
+      </Reveal>
+
+      <Reveal>
         <div className="rounded-[18px] bg-card p-5 ring-1 ring-border">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <AnimatedTabs
@@ -63,6 +115,7 @@ export function Products({ data, source }: { data: Dataset; source: Source }) {
               onChange={(m) => {
                 setMetric(m);
                 setResults(null);
+                setActive(0);
               }}
               tabs={[
                 { value: "revenue", label: "By revenue" },
@@ -109,7 +162,11 @@ export function Products({ data, source }: { data: Dataset; source: Source }) {
                         initial={{ width: 0 }}
                         whileInView={{ width: `${(100 * r.value) / max}%` }}
                         viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.1 + i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{
+                          duration: 1,
+                          delay: 0.1 + i * 0.05,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
                       />
                     </div>
                   </div>

@@ -9,23 +9,6 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { compact, count, countryName, money, monthParts, type Dataset } from "@/lib/api";
 import { Section } from "./section";
 
-export function Ticker({ data }: { data: Dataset }) {
-  const items = data.productsRevenue.map((p) => `${p.product} · ${money(p.revenue)}`);
-  const loop = [...items, ...items];
-  return (
-    <div className="relative overflow-hidden border-y border-border bg-card/40 py-3 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-      <div className="animate-marquee flex w-max gap-10 whitespace-nowrap font-mono text-[12px] text-muted-foreground">
-        {loop.map((t, i) => (
-          <span key={i} className="flex items-center gap-10">
-            {t}
-            <span className="text-primary">◆</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function Overview({ data }: { data: Dataset }) {
   const { summary, monthly } = data;
   const trend = monthly.map((m) => m.revenue);
@@ -57,16 +40,8 @@ export function Overview({ data }: { data: Dataset }) {
             value={<CountUp value={summary.total_units_sold} format={(v) => compact(v)} />}
             period={`${count(summary.total_units_sold)} items`}
           />,
-          <KpiCard
-            key="products"
-            label="Distinct products"
-            value={<CountUp value={summary.product_count} />}
-          />,
-          <KpiCard
-            key="countries"
-            label="Countries"
-            value={<CountUp value={summary.country_count} />}
-          />,
+          <KpiCard key="products" label="Distinct products" value={<CountUp value={summary.product_count} />} />,
+          <KpiCard key="countries" label="Countries" value={<CountUp value={summary.country_count} />} />,
         ].map((card, i) => (
           <Reveal key={i} delay={i * 0.08} className="h-full [&>*]:h-full">
             {card}
