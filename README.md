@@ -25,6 +25,9 @@ Online Retail Dataset (.xlsx)
         │
         ▼
  Graphs + ranked summary tables (scripts/visualize.py)
+        │
+        ▼
+ FastAPI backend (backend/main.py)  ──►  Next.js frontend (frontend/)
 ```
 
 ## MapReduce jobs
@@ -70,35 +73,73 @@ products even though they never sold.
 
 ## Results
 
-Total revenue after cleaning: **£9,815,291.49** across 3,998 products and 38 countries.
+| Metric | Value |
+|--------|------:|
+| Total revenue (after cleaning) | **£9,815,291.49** |
+| Units sold | 5,333,762 |
+| Distinct products | 3,998 |
+| Countries | 38 |
+| Top product by revenue | Regency Cakestand 3 Tier (£169,505.64) |
+| Top product by units | World War 2 Gliders Asstd Designs (54,711) |
+| Top country | United Kingdom (84.71% of revenue) |
+| Best month | November 2011 (£1,436,127.66) |
+
+The graphs below are made by `scripts/visualize.py` with Matplotlib and saved in
+[results/graphs/](results/graphs/). The same four PNGs are shown in the
+frontend's gallery.
 
 ### 1. Sales by Product
 ![Top products by revenue](results/graphs/1_sales_by_product.png)
 
-| Rank | Product | Revenue |
-|-----:|---------|--------:|
-| 1 | Regency Cakestand 3 Tier | £169,505.64 |
-| 2 | White Hanging Heart T-Light Holder | £100,052.42 |
-| 3 | Party Bunting | £98,610.18 |
-| 4 | Jumbo Bag Red Retrospot | £92,595.77 |
-| 5 | Rabbit Night Light | £66,807.63 |
+| Rank | Product | Revenue | Share |
+|-----:|---------|--------:|------:|
+| 1 | Regency Cakestand 3 Tier | £169,505.64 | 1.73% |
+| 2 | White Hanging Heart T-Light Holder | £100,052.42 | 1.02% |
+| 3 | Party Bunting | £98,610.18 | 1.00% |
+| 4 | Jumbo Bag Red Retrospot | £92,595.77 | 0.94% |
+| 5 | Rabbit Night Light | £66,807.63 | 0.68% |
+| 6 | Paper Chain Kit 50's Christmas | £63,834.94 | 0.65% |
+| 7 | Assorted Colour Bird Ornament | £58,878.61 | 0.60% |
+| 8 | Chilli Lights | £53,761.61 | 0.55% |
+| 9 | Spotty Bunting | £42,493.68 | 0.43% |
+| 10 | Jumbo Bag Pink Polkadot | £41,609.47 | 0.42% |
+
+Revenue is spread thinly: even the top product earns under 2% of the total.
 
 ### 2. Sales by Country
 ![Top countries by revenue](results/graphs/2_sales_by_country.png)
 
-The United Kingdom accounts for **84.7%** of revenue. The next biggest markets are the
-Netherlands (2.9%), EIRE (2.7%), Germany (2.1%) and France (1.9%).
+| Rank | Country | Revenue | Share |
+|-----:|---------|--------:|------:|
+| 1 | United Kingdom | £8,314,970.56 | 84.71% |
+| 2 | Netherlands | £283,443.54 | 2.89% |
+| 3 | EIRE | £262,162.03 | 2.67% |
+| 4 | Germany | £203,605.08 | 2.07% |
+| 5 | France | £182,697.39 | 1.86% |
+| 6 | Australia | £137,062.85 | 1.40% |
+| 7 | Switzerland | £52,712.50 | 0.54% |
+| 8 | Spain | £52,029.97 | 0.53% |
+| 9 | Japan | £37,314.37 | 0.38% |
+| 10 | Belgium | £36,813.69 | 0.38% |
+
+The United Kingdom accounts for **84.7%** of revenue. The other 37 countries
+together make up the remaining 15.3%.
 
 ### 3. Top-Selling Products (by quantity)
 ![Top products by units sold](results/graphs/3_top_selling_products.png)
 
-| Rank | Product | Units sold |
-|-----:|---------|-----------:|
-| 1 | World War 2 Gliders Asstd Designs | 54,711 |
-| 2 | Jumbo Bag Red Retrospot | 47,488 |
-| 3 | Popcorn Holder | 36,546 |
-| 4 | Assorted Colour Bird Ornament | 36,333 |
-| 5 | Pack of 72 Retrospot Cake Cases | 36,228 |
+| Rank | Product | Units sold | Share |
+|-----:|---------|-----------:|------:|
+| 1 | World War 2 Gliders Asstd Designs | 54,711 | 1.03% |
+| 2 | Jumbo Bag Red Retrospot | 47,488 | 0.89% |
+| 3 | Popcorn Holder | 36,546 | 0.69% |
+| 4 | Assorted Colour Bird Ornament | 36,333 | 0.68% |
+| 5 | Pack of 72 Retrospot Cake Cases | 36,228 | 0.68% |
+| 6 | White Hanging Heart T-Light Holder | 35,348 | 0.66% |
+| 7 | Rabbit Night Light | 30,709 | 0.58% |
+| 8 | Mini Paint Set Vintage | 26,489 | 0.50% |
+| 9 | Pack of 12 London Tissues | 26,107 | 0.49% |
+| 10 | Pack of 60 Pink Paisley Cake Cases | 24,748 | 0.46% |
 
 Low-priced items lead on volume, while the top earner (Regency Cakestand, ~£12
 each) ranks outside the top 10 by units. Only Jumbo Bag Red Retrospot, White
@@ -108,13 +149,29 @@ appear in both top-10 lists.
 ### 4. Monthly Sales
 ![Monthly revenue](results/graphs/4_monthly_sales.png)
 
+| Month | Revenue | Change vs previous month |
+|-------|--------:|-------------------------:|
+| 2010-12 | £766,665.09 | – |
+| 2011-01 | £587,062.70 | −23.4% |
+| 2011-02 | £505,292.29 | −13.9% |
+| 2011-03 | £680,301.35 | +34.6% |
+| 2011-04 | £490,266.22 | −27.9% |
+| 2011-05 | £733,579.66 | +49.6% |
+| 2011-06 | £689,417.76 | −6.0% |
+| 2011-07 | £681,338.77 | −1.2% |
+| 2011-08 | £717,100.45 | +5.3% |
+| 2011-09 | £1,017,160.07 | +41.8% |
+| 2011-10 | £1,068,097.92 | +5.0% |
+| 2011-11 | **£1,436,127.66** | +34.5% |
+| 2011-12 | £442,881.55 | −69.2% |
+
 Revenue is fairly flat at roughly £0.5M–£0.77M a month from December 2010 to August 2011, then
 climbs through autumn to a peak of **£1.44M in November 2011** (pre-Christmas
 wholesale buying). December 2011 looks low only because the dataset ends on
 9 December.
 
-Full tables are in [results/summary/](results/summary/) and the raw MapReduce
-output is in [results/output/](results/output/).
+Full ranked tables are in [results/summary/](results/summary/) (CSV) and the raw
+MapReduce output is in [results/output/](results/output/) (`part-00000` per job).
 
 ## Project structure
 
@@ -257,6 +314,16 @@ task each. The output fetched from HDFS matches the local run byte for byte.
 The full job log with all counters is in
 [results/hadoop_run_log.txt](results/hadoop_run_log.txt).
 
+| Job | YARN application | Wall time | Map task time | Reduce task time | Output written |
+|-----|------------------|----------:|--------------:|-----------------:|---------------:|
+| sales_by_product | application_1790675894475_0005 | 15 s | 8.9 s | 2.3 s | 140,692 bytes |
+| sales_by_country | application_1790675894475_0006 | 19 s | 8.7 s | 2.4 s | 674 bytes |
+| top_selling_products | application_1790675894475_0007 | 18 s | 8.9 s | 2.4 s | 127,577 bytes |
+| monthly_sales | application_1790675894475_0008 | 19 s | 8.6 s | 2.4 s | 237 bytes |
+
+Wall time is from job submission to completion in the log. Each job reads the
+same 44,602,625 bytes from HDFS.
+
 Hadoop counters show how much the combiner saves. Each job reads 519,516 input
 records (44.6 MB). The combiner adds up values on the map side, so far fewer
 records go through the shuffle to the reducer:
@@ -316,32 +383,63 @@ to restrict it. `RETAIL_RESULTS_DIR` points it at a different results folder.
 
 ## Frontend
 
-[frontend/](frontend/) is a Next.js site built on the API. It covers the pipeline
-with the real Hadoop counters, monthly revenue, product rankings with search, a
-country breakdown, and a panel that starts the pipeline and shows its log. It
-uses animated charts and a 3D hero driven by scrolling.
+[frontend/](frontend/) is a single-page Next.js site that presents the results.
+It reads everything from the backend API, so the numbers on the page are the
+reducer output, not hard-coded values.
+
+### Run it
 
 ```bash
 # terminal 1, from the project root
-uvicorn backend.main:app --port 8000
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --port 8000          # API at http://localhost:8000/docs
 
 # terminal 2
 cd frontend
 npm install
-npm run dev          # open http://localhost:3000
+npm run dev                                    # open http://localhost:3000
 ```
 
 If port 8000 is already in use, start the backend on another port and point the
-frontend at it: `NEXT_PUBLIC_API_URL=http://localhost:8001 npm run dev`. If the
-API can't be reached, the site shows a saved snapshot of the results.
+frontend at it: `NEXT_PUBLIC_API_URL=http://localhost:8001 npm run dev`. For a
+production build, set the same variable before `npm run build`, then `npm start`.
 
-| Hero | Pipeline (3D MapReduce machine) |
+The top bar shows **Live API** when the backend is reachable. If it isn't, the
+site falls back to a saved copy of the results
+([frontend/lib/snapshot.json](frontend/lib/snapshot.json)) and shows
+**Offline snapshot**, so it still works without the backend.
+
+### Sections
+
+| # | Section | What it shows | API |
+|---|---------|---------------|-----|
+| – | Hero | Headline totals around a 3D glass crystal with orbiting "records" that pull in as you scroll | `/api/summary` |
+| – | Record stream | A 3D corridor of cards, each one line of reducer output (product, country, units, month) | all result endpoints |
+| 01 | Overview | KPI cards (revenue, units, products, countries) and the top product, country and month | `/api/summary`, `/api/monthly` |
+| 02 | Pipeline | A 3D MapReduce machine (HDFS → Map → Shuffle → Reduce → Output). Clicking a station highlights its stage in the Raw → Clean → HDFS → Map → Combine/shuffle → Reduce flow, with the real Hadoop counters from the run above | Hadoop run log |
+| 03 | Monthly sales | Area chart of revenue per month and a timeline of notable months | `/api/monthly` |
+| 04 | Products | Carousel of the top 8, then ranked lists by revenue and by units, with search over all 3,998 products | `/api/products/revenue`, `/api/products/quantity` |
+| 05 | Countries | Draggable globe with arcs from the UK to every market, a revenue-share donut, and the top markets outside the UK | `/api/countries` |
+| 06 | Run it | Starts the pipeline in local or Hadoop mode and streams its log; the page reloads the data when the run finishes | `/api/pipeline/run`, `/api/pipeline/status` |
+| 07 | Graphs | The four Matplotlib PNGs from `scripts/visualize.py` in a gallery (bundled copies are used when offline) | `/api/graphs` |
+
+### Screenshots
+
+| Hero | Overview |
 |------|----------|
-| ![Hero](results/frontend_screenshots/01_hero.png) | ![Pipeline](results/frontend_screenshots/03_pipeline.png) |
-| **Monthly sales** | **Products** |
-| ![Monthly](results/frontend_screenshots/04_monthly.png) | ![Products](results/frontend_screenshots/05_products.png) |
-| **Record stream** | **Countries** |
-| ![Record stream](results/frontend_screenshots/08_record_stream.png) | ![Countries](results/frontend_screenshots/06_countries.png) |
+| ![Hero](results/frontend_screenshots/01_hero.png) | ![Overview](results/frontend_screenshots/02_overview.png) |
+| **Pipeline (3D MapReduce machine)** | **Monthly sales** |
+| ![Pipeline](results/frontend_screenshots/03_pipeline.png) | ![Monthly](results/frontend_screenshots/04_monthly.png) |
+| **Products** | **Countries** |
+| ![Products](results/frontend_screenshots/05_products.png) | ![Countries](results/frontend_screenshots/06_countries.png) |
+| **Run the pipeline** | **Record stream** |
+| ![Run pipeline](results/frontend_screenshots/07_run_pipeline.png) | ![Record stream](results/frontend_screenshots/08_record_stream.png) |
+| **Matplotlib graphs** | |
+| ![Graphs](results/frontend_screenshots/09_graphs.png) | |
+
+Built with Next.js 16, React 19, Tailwind CSS 4, Recharts, Motion, GSAP and
+three.js (React Three Fiber). See [frontend/README.md](frontend/README.md) for
+the code layout and component credits.
 
 ## Verification
 
@@ -357,7 +455,7 @@ API can't be reached, the site shows a saved snapshot of the results.
 
 ## Tech stack
 
-Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib · FastAPI (backend API) · Next.js, Recharts, Motion, three.js (frontend)
+Hadoop · HDFS · MapReduce · Hadoop Streaming · Python · pandas (cleaning and verification) · Matplotlib · FastAPI (backend API) · Next.js, React, Tailwind CSS, Recharts, Motion, GSAP, three.js (frontend)
 
 ## Dataset citation
 
