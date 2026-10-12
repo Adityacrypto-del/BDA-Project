@@ -1,135 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@layer components {
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
 
-@theme inline {
-  --font-sans: var(--font-geist);
-  --font-mono: var(--font-jetbrains);
-  --font-display: var(--font-bodoni);
-  --font-heading: var(--font-sans);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.15) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.15) 80%,
+      rgba(255, 255, 255, 0.45) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .font-instrument {
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
 }
 
-/* Dark-only dashboard theme. Chart slots follow a fixed categorical order:
-   blue, teal, amber, violet, pink. */
 :root {
-  --background: #07080c;
-  --foreground: #ece9e2;
-  --card: #0e1017;
-  --card-foreground: #ece9e2;
-  --popover: #151824;
-  --popover-foreground: #ece9e2;
-  --primary: #5b9bff;
-  --primary-foreground: #06080d;
-  --secondary: #171a24;
-  --secondary-foreground: #ece9e2;
-  --muted: #171a24;
-  --muted-foreground: #9a9cab;
-  --accent: #1b1f2c;
-  --accent-foreground: #ece9e2;
-  --destructive: #ff6b6b;
-  --border: rgb(255 255 255 / 0.08);
-  --input: rgb(255 255 255 / 0.12);
-  --ring: #5b9bff;
-  --chart-1: #5b9bff;
-  --chart-2: #2fc7a9;
-  --chart-3: #f0b23f;
-  --chart-4: #a98bff;
-  --chart-5: #ef739f;
-  --radius: 0.625rem;
+  --background: #000000;
+  --foreground: #ffffff;
   color-scheme: dark;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
-    margin: 0;
-    overflow-x: hidden;
-  }
-}
-
-/* ---------- motion helpers ---------- */
-
-@keyframes aurora {
-  0%   { transform: translate3d(-10%, -6%, 0) rotate(0deg) scale(1); }
-  50%  { transform: translate3d(8%, 6%, 0) rotate(20deg) scale(1.15); }
-  100% { transform: translate3d(-10%, -6%, 0) rotate(0deg) scale(1); }
-}
-
-@keyframes grid-pan {
-  from { background-position: 0 0; }
-  to   { background-position: 48px 48px; }
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-@keyframes dash {
-  to { stroke-dashoffset: -24; }
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
-}
-
-.aurora-blob {
-  animation: aurora 18s ease-in-out infinite;
-  filter: blur(80px);
-  will-change: transform;
-}
-
-.grid-bg {
-  background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  animation: grid-pan 6s linear infinite;
-}
-
-.animate-marquee { animation: marquee 40s linear infinite; }
-.flow-dash { stroke-dasharray: 6 6; animation: dash 0.8s linear infinite; }
-.caret { animation: blink 1s step-end infinite; }
-
-@media (prefers-reduced-motion: reduce) {
-  .aurora-blob, .grid-bg, .animate-marquee, .flow-dash, .caret { animation: none; }
+body {
+  background-color: #000000;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }

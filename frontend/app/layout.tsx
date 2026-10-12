@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
-const bodoni = Bodoni_Moda({ subsets: ["latin"], variable: "--font-bodoni" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
 
 export const metadata: Metadata = {
-  title: "Retail MapReduce",
-  description: "Hadoop MapReduce analysis of the UCI Online Retail dataset",
+  title: "Asme — Know it all",
+  description: "Pioneering ideas for minds that create, build, and inspire.",
 };
 
 export default function RootLayout({
@@ -18,8 +12,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={cn(geist.variable, bodoni.variable, jetbrains.variable)}>
-      <body>{children}</body>
+    <html lang="en" className="dark bg-black scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-black text-white min-h-screen selection:bg-white/20 selection:text-white antialiased">
+        {children}
+      </body>
     </html>
   );
 }
