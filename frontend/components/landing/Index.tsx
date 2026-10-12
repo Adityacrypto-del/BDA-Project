@@ -1,50 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Globe, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Database, Github, ExternalLink, Cpu } from "lucide-react";
 import AboutSection from "./AboutSection";
 import FeaturedVideoSection from "./FeaturedVideoSection";
 import PhilosophySection from "./PhilosophySection";
 import ServicesSection from "./ServicesSection";
-
-function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
-function TwitterIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-    </svg>
-  );
-}
+import ResultsSection from "./ResultsSection";
 
 export function Index() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fadeAnimRef = useRef<number | null>(null);
   const isFadingOutRef = useRef(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Vanilla JS video opacity animation via requestAnimationFrame
   const fadeOpacity = (target: number, duration = 500, onDone?: () => void) => {
@@ -122,14 +90,29 @@ export function Index() {
     };
   }, []);
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const el = document.getElementById("results");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="bg-black text-white min-h-screen selection:bg-white/20 selection:text-white">
-      {/* SECTION 1 -- HERO (full-viewport) */}
+      {/* SECTION 1 -- HERO (full-viewport) with Cycling Background Video */}
       <section className="min-h-screen overflow-hidden relative flex flex-col justify-between">
-        {/* Background video */}
+        {/* Background video: Cycling animation */}
         <video
           ref={videoRef}
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8.mp4"
           className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
           muted
           autoPlay
@@ -143,78 +126,117 @@ export function Index() {
 
         {/* Navbar */}
         <header className="relative z-20 px-6 py-6 w-full">
-          <nav className="liquid-glass rounded-full max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-            {/* Left */}
+          <nav className="liquid-glass rounded-full max-w-5xl mx-auto px-6 py-3 flex items-center justify-between border border-white/10">
+            {/* Left: Project Branding & Nav Links */}
             <div className="flex items-center">
-              <div className="flex items-center gap-2.5">
-                <Globe className="w-6 h-6 text-white" />
+              <a
+                href="#top"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="flex items-center gap-2.5 group cursor-pointer"
+              >
+                <div className="liquid-glass rounded-full p-1.5 flex items-center justify-center">
+                  <Database className="w-4 h-4 text-white" />
+                </div>
                 <span className="text-white font-semibold text-lg tracking-tight">
-                  Asme
+                  RetailMR
                 </span>
-              </div>
-              <div className="hidden md:flex items-center gap-8 ml-8">
-                <a
-                  href="#features"
-                  className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+              </a>
+
+              <div className="hidden md:flex items-center gap-7 ml-8">
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("overview")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
-                  Features
-                </a>
-                <a
-                  href="#pricing"
-                  className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("architecture")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
-                  Pricing
-                </a>
-                <a
-                  href="#about"
-                  className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+                  Pipeline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("jobs")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
-                  About
-                </a>
+                  Hadoop Jobs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("graphs")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
+                >
+                  Visualizations
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("results")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
+                >
+                  Results
+                </button>
               </div>
             </div>
 
-            {/* Right */}
+            {/* Right: Actions */}
             <div className="flex items-center gap-4">
+              <a
+                href="https://archive.ics.uci.edu/dataset/352/online+retail"
+                target="_blank"
+                rel="noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors"
+              >
+                <span>Dataset</span>
+                <ExternalLink className="w-3.5 h-3.5 text-white/40" />
+              </a>
               <button
                 type="button"
-                className="text-white text-sm font-medium hover:text-white/80 transition-colors cursor-pointer"
+                onClick={() => scrollToSection("jobs")}
+                className="liquid-glass rounded-full px-5 py-2 text-white text-sm font-medium hover:bg-white/10 transition-colors cursor-pointer"
               >
-                Sign Up
-              </button>
-              <button
-                type="button"
-                className="liquid-glass rounded-full px-6 py-2 text-white text-sm font-medium hover:bg-white/5 transition-colors cursor-pointer"
-              >
-                Login
+                Explore Jobs
               </button>
             </div>
           </nav>
         </header>
 
         {/* Hero content */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 text-center -translate-y-[20%]">
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 text-center -translate-y-[10%] md:-translate-y-[15%]">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass border border-white/10 text-xs font-mono text-white/70 mb-6">
+            <Cpu className="w-3.5 h-3.5 text-white/80" />
+            <span>Hadoop 3.5 · Python Streaming · 541,909 Transactions</span>
+          </div>
+
           {/* Heading */}
           <h1
             className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-white tracking-tight whitespace-nowrap font-instrument"
             style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
           >
-            Know it <em className="italic">all</em>.
+            Retail <em className="italic">MapReduce</em>.
           </h1>
 
-          {/* Email input */}
+          {/* Search / Filter input */}
           <form
-            onSubmit={(e) => e.preventDefault()}
-            className="max-w-xl w-full mx-auto mt-8 md:mt-10 liquid-glass rounded-full pl-6 pr-2 py-2 flex items-center gap-3"
+            onSubmit={handleSearchSubmit}
+            className="max-w-xl w-full mx-auto mt-8 md:mt-10 liquid-glass rounded-full pl-6 pr-2 py-2 flex items-center gap-3 border border-white/10 shadow-2xl"
           >
             <input
-              type="email"
-              placeholder="Enter your email"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search 541,909 records (e.g. Regency Cakestand, UK)..."
               className="bg-transparent flex-1 text-white placeholder:text-white/40 outline-none text-sm md:text-base border-none focus:ring-0"
             />
             <button
               type="submit"
-              aria-label="Submit email"
+              aria-label="Search dataset results"
               className="bg-white rounded-full p-3 text-black hover:bg-white/90 transition-transform active:scale-95 flex items-center justify-center cursor-pointer shrink-0"
             >
               <ArrowRight className="w-5 h-5 text-black" />
@@ -222,60 +244,80 @@ export function Index() {
           </form>
 
           {/* Subtitle */}
-          <p className="text-white text-sm leading-relaxed px-4 max-w-lg mt-6">
-            Stay updated with the latest news and insights. Subscribe to our newsletter today and never miss out on exciting updates.
+          <p className="text-white/80 text-sm leading-relaxed px-4 max-w-lg mt-6 font-normal">
+            Distributed Big Data analytics on the UCI Online Retail dataset. Cleaned, partitioned, and processed across HDFS worker nodes to unlock revenue, volume, and geographic insights.
           </p>
 
-          {/* Manifesto button */}
+          {/* Action button */}
           <button
             type="button"
-            className="liquid-glass rounded-full px-8 py-3 text-white text-sm font-medium hover:bg-white/5 transition-colors mt-6 cursor-pointer"
+            onClick={() => scrollToSection("jobs")}
+            className="liquid-glass rounded-full px-8 py-3 text-white text-sm font-medium hover:bg-white/10 transition-colors mt-6 cursor-pointer border border-white/10"
           >
-            Manifesto
+            Explore 4 MapReduce Jobs
           </button>
         </div>
 
-        {/* Social icons footer */}
+        {/* Social / project icons footer */}
         <footer className="relative z-10 flex justify-center gap-4 pb-12">
           <a
-            href="https://instagram.com"
+            href="https://github.com/Adityacrypto-del/BDA-Project"
             target="_blank"
             rel="noreferrer"
-            aria-label="Instagram"
-            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center cursor-pointer"
+            aria-label="GitHub Repository"
+            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center cursor-pointer border border-white/10"
+            title="GitHub Repository"
           >
-            <InstagramIcon className="w-5 h-5" />
+            <Github className="w-5 h-5" />
           </a>
           <a
-            href="https://twitter.com"
+            href="https://archive.ics.uci.edu/dataset/352/online+retail"
             target="_blank"
             rel="noreferrer"
-            aria-label="Twitter"
-            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center cursor-pointer"
+            aria-label="UCI Online Retail Dataset"
+            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center cursor-pointer border border-white/10"
+            title="UCI Online Retail Dataset"
           >
-            <TwitterIcon className="w-5 h-5" />
+            <Database className="w-5 h-5" />
           </a>
-          <a
-            href="#global"
-            aria-label="Global"
-            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center cursor-pointer"
+          <button
+            type="button"
+            onClick={() => scrollToSection("architecture")}
+            aria-label="Pipeline Architecture"
+            className="liquid-glass rounded-full p-4 text-white/80 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center cursor-pointer border border-white/10"
+            title="Pipeline Architecture"
           >
-            <Globe className="w-5 h-5" />
-          </a>
+            <Cpu className="w-5 h-5" />
+          </button>
         </footer>
       </section>
 
-      {/* SECTION 2 -- ABOUT SECTION */}
+      {/* SECTION 2 -- OVERVIEW & DATASET STATS */}
       <AboutSection />
 
-      {/* SECTION 3 -- FEATURED VIDEO */}
+      {/* SECTION 3 -- PIPELINE ARCHITECTURE (Cleaned Ingestion & Combiner) */}
       <FeaturedVideoSection />
 
-      {/* SECTION 4 -- PHILOSOPHY / INNOVATION x VISION */}
+      {/* SECTION 4 -- 4 HADOOP STREAMING JOBS */}
       <PhilosophySection />
 
-      {/* SECTION 5 -- SERVICES / WHAT WE DO */}
+      {/* SECTION 5 -- ANALYTICAL VISUALIZATIONS & MATPLOTLIB GRAPHS */}
       <ServicesSection />
+
+      {/* SECTION 6 -- AGGREGATED JOB RESULTS & SUMMARY TABLES */}
+      <ResultsSection />
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-black py-10 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/40">
+          <div>
+            Data: Chen, D. (2015). <em>Online Retail</em>. UCI Machine Learning Repository.
+          </div>
+          <div className="font-mono text-[11px] text-white/60">
+            Hadoop 3.5 · Python Streaming · FastAPI · Next.js
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
