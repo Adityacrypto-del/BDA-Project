@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Asme — Know it all",
-  description: "Pioneering ideas for minds that create, build, and inspire.",
+  title: "Retail MapReduce — E-Commerce Big Data Analytics",
+  description:
+    "Distributed Hadoop MapReduce analysis of 541,909 transactions from the UCI Online Retail dataset using Python Streaming, HDFS, and Matplotlib.",
 };
 
 export default function RootLayout({
