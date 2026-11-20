@@ -7,6 +7,7 @@ import FeaturedVideoSection from "./FeaturedVideoSection";
 import PhilosophySection from "./PhilosophySection";
 import ServicesSection from "./ServicesSection";
 import ResultsSection from "./ResultsSection";
+import HiveQuerySection from "./HiveQuerySection";
 
 function GithubIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -198,6 +199,13 @@ export function Index() {
                 >
                   Results
                 </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("hive")}
+                  className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer"
+                >
+                  HiveQL
+                </button>
               </div>
             </div>
 
@@ -323,6 +331,9 @@ export function Index() {
 
       {/* SECTION 6 -- AGGREGATED JOB RESULTS & SUMMARY TABLES */}
       <ResultsSection />
+
+      {/* SECTION 7 -- HIVEQL QUERY CONSOLE */}
+      <HiveQuerySection />
 
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-black py-10 px-6">

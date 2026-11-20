@@ -139,5 +139,51 @@ class PipelineApiTest(unittest.TestCase):
         self.assertEqual(client.post("/api/pipeline/run?mode=spark").status_code, 422)
 
 
+FAKE_TSV = (
+    "536365\t85123A\tPARTY BUNTING\t6\t2010-12-01 08:26\t2.50\t17850\tUnited Kingdom\n"
+    "536366\t22633\tPARTY BUNTING\t4\t2010-12-01 09:10\t2.50\tUNKNOWN\tUnited Kingdom\n"
+    "536367\t84879\tRABBIT NIGHT LIGHT\t10\t2011-01-05 10:00\t2.00\t12583\tFrance\n"
+)
+
+
+class HiveApiTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        data = Path(tempfile.mkdtemp()) / "clean.tsv"
+        data.write_text(FAKE_TSV)
+        cls.client = TestClient(create_app(make_results_dir(), data_file=data))
+
+    def test_lists_queries_and_ddl(self):
+        body = self.client.get("/api/hive/queries").json()
+        self.assertIn("CREATE EXTERNAL TABLE", body["ddl"])
+        self.assertGreaterEqual(len(body["queries"]), 5)
+
+    def test_every_query_runs(self):
+        for q in self.client.get("/api/hive/queries").json()["queries"]:
+            r = self.client.post(f"/api/hive/run/{q['id']}")
+            self.assertEqual(r.status_code, 200, q["id"])
+            body = r.json()
+            for row in body["rows"]:
+                self.assertEqual(len(body["columns"]), len(row), q["id"])
+
+    def test_overview_values(self):
+        body = self.client.post("/api/hive/run/overview").json()
+        row = dict(zip(body["columns"], body["rows"][0]))
+        self.assertEqual(row["transactions"], 3)
+        self.assertEqual(row["customers"], 2)  # UNKNOWN is not a customer
+        self.assertEqual(row["total_revenue"], 45.0)
+
+    def test_country_revenue(self):
+        rows = self.client.post("/api/hive/run/revenue_by_country").json()["rows"]
+        self.assertEqual(rows[0], ["United Kingdom", 25.0, 55.56])
+
+    def test_unknown_query(self):
+        self.assertEqual(self.client.post("/api/hive/run/drop_table").status_code, 404)
+
+    def test_missing_data_file(self):
+        client = TestClient(create_app(make_results_dir(), data_file=Path("/nonexistent/x.tsv")))
+        self.assertEqual(client.post("/api/hive/run/overview").status_code, 503)
+
+
 if __name__ == "__main__":
     unittest.main()

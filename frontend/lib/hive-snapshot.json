@@ -1,0 +1,546 @@
+{
+ "ddl": "CREATE EXTERNAL TABLE IF NOT EXISTS sales (\n  invoice_no   STRING,\n  stock_code   STRING,\n  description  STRING,\n  quantity     INT,\n  invoice_date STRING,\n  unit_price   DOUBLE,\n  customer_id  STRING,\n  country      STRING\n)\nROW FORMAT DELIMITED FIELDS TERMINATED BY '\\t'\nSTORED AS TEXTFILE\nLOCATION '/user/${USER}/retail/input';",
+ "queries": [
+  {
+   "id": "overview",
+   "title": "Dataset overview",
+   "description": "Row, order, customer, product and country counts plus total revenue.",
+   "sql": "SELECT COUNT(*)                                AS transactions,\n       COUNT(DISTINCT invoice_no)              AS orders,\n       COUNT(DISTINCT CASE WHEN customer_id <> 'UNKNOWN'\n                           THEN customer_id END) AS customers,\n       COUNT(DISTINCT description)             AS products,\n       COUNT(DISTINCT country)                 AS countries,\n       SUM(quantity)                           AS units_sold,\n       ROUND(SUM(quantity * unit_price), 2)    AS total_revenue\nFROM sales;"
+  },
+  {
+   "id": "top_products_revenue",
+   "title": "Top 10 products by revenue",
+   "description": "Same question as MapReduce Job 1 (Sales by Product).",
+   "sql": "SELECT description,\n       ROUND(SUM(quantity * unit_price), 2) AS revenue\nFROM sales\nGROUP BY description\nORDER BY revenue DESC\nLIMIT 10;"
+  },
+  {
+   "id": "revenue_by_country",
+   "title": "Revenue by country",
+   "description": "MapReduce Job 2 in one query, with each country's share of revenue.",
+   "sql": "SELECT country,\n       ROUND(SUM(quantity * unit_price), 2) AS revenue,\n       ROUND(100 * SUM(quantity * unit_price)\n                 / SUM(SUM(quantity * unit_price)) OVER (), 2) AS share_pct\nFROM sales\nGROUP BY country\nORDER BY revenue DESC\nLIMIT 10;"
+  },
+  {
+   "id": "top_products_units",
+   "title": "Top 10 products by units sold",
+   "description": "Same question as MapReduce Job 3 (Top-Selling Products).",
+   "sql": "SELECT description,\n       SUM(quantity) AS units_sold\nFROM sales\nGROUP BY description\nORDER BY units_sold DESC\nLIMIT 10;"
+  },
+  {
+   "id": "monthly_revenue",
+   "title": "Monthly revenue and growth",
+   "description": "MapReduce Job 4 plus month-over-month change using LAG().",
+   "sql": "SELECT month,\n       revenue,\n       ROUND(100 * (revenue - LAG(revenue) OVER (ORDER BY month))\n                 / LAG(revenue) OVER (ORDER BY month), 2) AS change_pct\nFROM (\n  SELECT SUBSTR(invoice_date, 1, 7)           AS month,\n         ROUND(SUM(quantity * unit_price), 2) AS revenue\n  FROM sales\n  GROUP BY SUBSTR(invoice_date, 1, 7)\n) m\nORDER BY month;"
+  },
+  {
+   "id": "top_customers",
+   "title": "Top 10 customers by spend",
+   "description": "Biggest customers, their order count and the country they buy from.",
+   "sql": "SELECT customer_id,\n       country,\n       COUNT(DISTINCT invoice_no)           AS orders,\n       ROUND(SUM(quantity * unit_price), 2) AS total_spent\nFROM sales\nWHERE customer_id <> 'UNKNOWN'\nGROUP BY customer_id, country\nORDER BY total_spent DESC\nLIMIT 10;"
+  },
+  {
+   "id": "avg_order_value",
+   "title": "Average order value by country",
+   "description": "Revenue per order, for countries with at least 20 orders.",
+   "sql": "SELECT country,\n       COUNT(DISTINCT invoice_no) AS orders,\n       ROUND(SUM(quantity * unit_price) / COUNT(DISTINCT invoice_no), 2) AS avg_order_value\nFROM sales\nGROUP BY country\nHAVING COUNT(DISTINCT invoice_no) >= 20\nORDER BY avg_order_value DESC\nLIMIT 10;"
+  },
+  {
+   "id": "hourly_sales",
+   "title": "Sales by hour of day",
+   "description": "When during the day customers place their orders.",
+   "sql": "SELECT CAST(SUBSTR(invoice_date, 12, 2) AS INT) AS hour,\n       COUNT(DISTINCT invoice_no)               AS orders,\n       ROUND(SUM(quantity * unit_price), 2)     AS revenue\nFROM sales\nGROUP BY CAST(SUBSTR(invoice_date, 12, 2) AS INT)\nORDER BY hour;"
+  }
+ ],
+ "results": {
+  "overview": {
+   "id": "overview",
+   "columns": [
+    "transactions",
+    "orders",
+    "customers",
+    "products",
+    "countries",
+    "units_sold",
+    "total_revenue"
+   ],
+   "rows": [
+    [
+     519516,
+     19612,
+     4322,
+     3998,
+     38,
+     5333762,
+     9815291.49
+    ]
+   ],
+   "row_count": 1,
+   "elapsed_ms": 155.3,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "top_products_revenue": {
+   "id": "top_products_revenue",
+   "columns": [
+    "description",
+    "revenue"
+   ],
+   "rows": [
+    [
+     "REGENCY CAKESTAND 3 TIER",
+     169505.64
+    ],
+    [
+     "WHITE HANGING HEART T-LIGHT HOLDER",
+     100052.42
+    ],
+    [
+     "PARTY BUNTING",
+     98610.18
+    ],
+    [
+     "JUMBO BAG RED RETROSPOT",
+     92595.77
+    ],
+    [
+     "RABBIT NIGHT LIGHT",
+     66807.63
+    ],
+    [
+     "PAPER CHAIN KIT 50'S CHRISTMAS",
+     63834.94
+    ],
+    [
+     "ASSORTED COLOUR BIRD ORNAMENT",
+     58878.61
+    ],
+    [
+     "CHILLI LIGHTS",
+     53761.61
+    ],
+    [
+     "SPOTTY BUNTING",
+     42493.68
+    ],
+    [
+     "JUMBO BAG PINK POLKADOT",
+     41609.47
+    ]
+   ],
+   "row_count": 10,
+   "elapsed_ms": 163.1,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "revenue_by_country": {
+   "id": "revenue_by_country",
+   "columns": [
+    "country",
+    "revenue",
+    "share_pct"
+   ],
+   "rows": [
+    [
+     "United Kingdom",
+     8314970.56,
+     84.71
+    ],
+    [
+     "Netherlands",
+     283443.54,
+     2.89
+    ],
+    [
+     "EIRE",
+     262162.03,
+     2.67
+    ],
+    [
+     "Germany",
+     203605.08,
+     2.07
+    ],
+    [
+     "France",
+     182697.39,
+     1.86
+    ],
+    [
+     "Australia",
+     137062.85,
+     1.4
+    ],
+    [
+     "Switzerland",
+     52712.5,
+     0.54
+    ],
+    [
+     "Spain",
+     52029.97,
+     0.53
+    ],
+    [
+     "Japan",
+     37314.37,
+     0.38
+    ],
+    [
+     "Belgium",
+     36813.69,
+     0.38
+    ]
+   ],
+   "row_count": 10,
+   "elapsed_ms": 87.4,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "top_products_units": {
+   "id": "top_products_units",
+   "columns": [
+    "description",
+    "units_sold"
+   ],
+   "rows": [
+    [
+     "WORLD WAR 2 GLIDERS ASSTD DESIGNS",
+     54711
+    ],
+    [
+     "JUMBO BAG RED RETROSPOT",
+     47488
+    ],
+    [
+     "POPCORN HOLDER",
+     36546
+    ],
+    [
+     "ASSORTED COLOUR BIRD ORNAMENT",
+     36333
+    ],
+    [
+     "PACK OF 72 RETROSPOT CAKE CASES",
+     36228
+    ],
+    [
+     "WHITE HANGING HEART T-LIGHT HOLDER",
+     35348
+    ],
+    [
+     "RABBIT NIGHT LIGHT",
+     30709
+    ],
+    [
+     "MINI PAINT SET VINTAGE",
+     26489
+    ],
+    [
+     "PACK OF 12 LONDON TISSUES",
+     26107
+    ],
+    [
+     "PACK OF 60 PINK PAISLEY CAKE CASES",
+     24748
+    ]
+   ],
+   "row_count": 10,
+   "elapsed_ms": 136.2,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "monthly_revenue": {
+   "id": "monthly_revenue",
+   "columns": [
+    "month",
+    "revenue",
+    "change_pct"
+   ],
+   "rows": [
+    [
+     "2010-12",
+     766665.09,
+     null
+    ],
+    [
+     "2011-01",
+     587062.7,
+     -23.43
+    ],
+    [
+     "2011-02",
+     505292.29,
+     -13.93
+    ],
+    [
+     "2011-03",
+     680301.35,
+     34.64
+    ],
+    [
+     "2011-04",
+     490266.22,
+     -27.93
+    ],
+    [
+     "2011-05",
+     733579.66,
+     49.63
+    ],
+    [
+     "2011-06",
+     689417.76,
+     -6.02
+    ],
+    [
+     "2011-07",
+     681338.77,
+     -1.17
+    ],
+    [
+     "2011-08",
+     717100.45,
+     5.25
+    ],
+    [
+     "2011-09",
+     1017160.07,
+     41.84
+    ],
+    [
+     "2011-10",
+     1068097.92,
+     5.01
+    ],
+    [
+     "2011-11",
+     1436127.66,
+     34.46
+    ],
+    [
+     "2011-12",
+     442881.55,
+     -69.16
+    ]
+   ],
+   "row_count": 13,
+   "elapsed_ms": 121.4,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "top_customers": {
+   "id": "top_customers",
+   "columns": [
+    "customer_id",
+    "country",
+    "orders",
+    "total_spent"
+   ],
+   "rows": [
+    [
+     "14646",
+     "Netherlands",
+     72,
+     278742.02
+    ],
+    [
+     "18102",
+     "United Kingdom",
+     60,
+     259657.3
+    ],
+    [
+     "17450",
+     "United Kingdom",
+     45,
+     189607.53
+    ],
+    [
+     "14911",
+     "EIRE",
+     196,
+     130021.8
+    ],
+    [
+     "12415",
+     "Australia",
+     19,
+     123745.68
+    ],
+    [
+     "14156",
+     "EIRE",
+     54,
+     114011.28
+    ],
+    [
+     "17511",
+     "United Kingdom",
+     31,
+     88556.38
+    ],
+    [
+     "16684",
+     "United Kingdom",
+     27,
+     65920.12
+    ],
+    [
+     "13694",
+     "United Kingdom",
+     50,
+     63571.3
+    ],
+    [
+     "15311",
+     "United Kingdom",
+     90,
+     59715.01
+    ]
+   ],
+   "row_count": 10,
+   "elapsed_ms": 125.3,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "avg_order_value": {
+   "id": "avg_order_value",
+   "columns": [
+    "country",
+    "orders",
+    "avg_order_value"
+   ],
+   "rows": [
+    [
+     "Netherlands",
+     93,
+     3047.78
+    ],
+    [
+     "Australia",
+     53,
+     2586.09
+    ],
+    [
+     "Sweden",
+     31,
+     1135.95
+    ],
+    [
+     "Switzerland",
+     48,
+     1098.18
+    ],
+    [
+     "Norway",
+     31,
+     1042.56
+    ],
+    [
+     "EIRE",
+     280,
+     936.29
+    ],
+    [
+     "Channel Islands",
+     25,
+     799.9
+    ],
+    [
+     "Spain",
+     87,
+     598.05
+    ],
+    [
+     "Portugal",
+     50,
+     536.63
+    ],
+    [
+     "France",
+     378,
+     483.33
+    ]
+   ],
+   "row_count": 10,
+   "elapsed_ms": 110.5,
+   "engine": "SQLite (HiveQL-compatible)"
+  },
+  "hourly_sales": {
+   "id": "hourly_sales",
+   "columns": [
+    "hour",
+    "orders",
+    "revenue"
+   ],
+   "rows": [
+    [
+     7,
+     29,
+     30469.21
+    ],
+    [
+     8,
+     564,
+     277634.8
+    ],
+    [
+     9,
+     1457,
+     779984.76
+    ],
+    [
+     10,
+     2317,
+     1300545.07
+    ],
+    [
+     11,
+     2357,
+     1172977.89
+    ],
+    [
+     12,
+     3189,
+     1394167.53
+    ],
+    [
+     13,
+     2710,
+     1188235.25
+    ],
+    [
+     14,
+     2402,
+     1106614.74
+    ],
+    [
+     15,
+     2289,
+     1224988.25
+    ],
+    [
+     16,
+     1298,
+     702894.81
+    ],
+    [
+     17,
+     649,
+     432553.31
+    ],
+    [
+     18,
+     191,
+     138099.03
+    ],
+    [
+     19,
+     143,
+     47333.56
+    ],
+    [
+     20,
+     18,
+     18793.28
+    ]
+   ],
+   "row_count": 14,
+   "elapsed_ms": 110.5,
+   "engine": "SQLite (HiveQL-compatible)"
+  }
+ }
+}

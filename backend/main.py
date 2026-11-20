@@ -20,8 +20,12 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from backend.hive import HIVE_DDL, QUERIES, QUERIES_BY_ID, HiveEngine
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RESULTS_DIR = Path(os.environ.get("RETAIL_RESULTS_DIR", ROOT / "results"))
+DEFAULT_DATA_FILE = Path(os.environ.get(
+    "RETAIL_DATA_FILE", ROOT / "data" / "cleaned" / "online_retail_clean.tsv"))
 CORS_ORIGINS = os.environ.get("RETAIL_CORS_ORIGINS", "*").split(",")
 
 JOBS = {
@@ -126,9 +130,11 @@ def _default_command(mode):
     return [str(ROOT / "run_pipeline.sh"), mode]
 
 
-def create_app(results_dir: Path = DEFAULT_RESULTS_DIR, pipeline_command=_default_command):
+def create_app(results_dir: Path = DEFAULT_RESULTS_DIR, pipeline_command=_default_command,
+               data_file: Path = DEFAULT_DATA_FILE):
     store = ResultStore(results_dir)
     runner = PipelineRunner(pipeline_command)
+    hive = HiveEngine(data_file, Path(data_file).with_suffix(".sqlite"))
 
     app = FastAPI(
         title="E-Commerce Sales Analysis API",
@@ -221,6 +227,21 @@ def create_app(results_dir: Path = DEFAULT_RESULTS_DIR, pipeline_command=_defaul
         """URLs of the generated Matplotlib charts."""
         return [{"name": p.stem, "url": f"/graphs/{p.name}"}
                 for p in sorted(graphs_dir.glob("*.png"))]
+
+    @app.get("/api/hive/queries", tags=["hive"])
+    def hive_queries():
+        """The built-in HiveQL queries and the Hive table definition."""
+        return {"ddl": HIVE_DDL, "queries": QUERIES}
+
+    @app.post("/api/hive/run/{query_id}", tags=["hive"])
+    def hive_run(query_id: str):
+        """Execute one built-in HiveQL query on the cleaned dataset."""
+        if query_id not in QUERIES_BY_ID:
+            raise HTTPException(status_code=404, detail=f"Unknown query '{query_id}'.")
+        try:
+            return hive.run(query_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
 
     @app.post("/api/pipeline/run", status_code=202, tags=["pipeline"])
     def run_pipeline(mode: Literal["local", "hadoop"] = "local"):
