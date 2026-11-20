@@ -2,7 +2,9 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import Link from "next/link";
 import { Code2, ArrowRight } from "lucide-react";
+import { JOBS } from "@/lib/mr-jobs";
 
 export function PhilosophySection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -140,6 +142,36 @@ export function PhilosophySection() {
               </p>
             </div>
           </motion.div>
+        </div>
+
+        {/* Job cards: each opens its own walkthrough page */}
+        <div className="mt-20 md:mt-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {JOBS.map((job, i) => (
+            <motion.div
+              key={job.slug}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.7, delay: 0.25 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Link
+                href={`/jobs/${job.slug}`}
+                className="liquid-glass rounded-3xl border border-white/10 p-6 flex flex-col h-full group hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <span className="font-mono text-xs text-white/40">JOB {job.number}</span>
+                  <span className="w-2 h-2 rounded-full" style={{ background: job.accent }} />
+                </div>
+                <h3 className="text-xl text-white tracking-tight">{job.title}</h3>
+                <p className="text-white/55 text-sm mt-2 leading-relaxed flex-1">{job.question}</p>
+                <p className="font-mono text-[11px] text-white/40 mt-5">
+                  <span className="text-sky-300/80">{job.keyLabel}</span> → {job.valueLabel}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 self-start rounded-full bg-white text-black text-sm font-medium px-4 py-2 group-hover:gap-3 transition-all">
+                  View job <ArrowRight className="w-4 h-4" />
+                </span>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

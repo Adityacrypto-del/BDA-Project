@@ -55,3 +55,21 @@ body {
   overflow-x: hidden;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* MapReduce job page: data flowing along graph edges */
+@keyframes mr-dash {
+  to { stroke-dashoffset: -24; }
+}
+.mr-flow {
+  stroke-dasharray: 6 6;
+  animation: mr-dash 0.7s linear infinite;
+}
+.mr-flow-slow {
+  stroke-dasharray: 5 7;
+  animation: mr-dash 1.6s linear infinite;
+}
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mr-flow, .mr-flow-slow { animation: none; stroke-dasharray: none; }
+}
